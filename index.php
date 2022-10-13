@@ -1,6 +1,7 @@
 <?php session_start(); 
 include("dataBase.php");
-if(isset($_SESSION["id"])){?>
+if(isset($_SESSION["id"])){
+  ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -45,7 +46,7 @@ if(isset($_SESSION["id"])){?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-lg">
         <div class="container-fluid">
 
-        <button class="btn btn-sm btn-secondary" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
+        <button class="btn btn-sm " type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling">
                       <img src="img/msg.png" width="37" height="34" alt="">
                     </button>
 
@@ -204,7 +205,6 @@ Join Group
 <!-- //////////////////////////////////////////////////// -->
 
 
-
     
 <!-- LIST -->
    <div class="list-group list-group-flush border-bottom scrollarea">
@@ -263,15 +263,32 @@ Join Group
   
 <div class="container">
 
-<h1>hell</h1>
+
 
 <!-- Chatting frame -->
 <?php
+$id="";
 echo'  <div class="container overflow-auto" style="margin-top: 10px;">
 <ul class="list-group">';
-if(isset($_GET["id"]) ){
+if(isset($_GET["id"])){
   $id = $_GET["id"];
+  $_SESSION["prevId"] = $id;
+}
+else if(isset($_SESSION["prevId"])){
+  $id = $_SESSION["prevId"];
+}else{
+  $sql = "SELECT * FROM message WHERE userId = '".$_SESSION["id"]."'";
+  $result = mysqli_query($conn,$sql);
+  if(mysqli_num_rows($result) >0){
+    while($row = mysqli_fetch_assoc($result)){
+      $id = $row["groupId"];
+      $_SESSION["prevId"] = $id;
+      break;
+    }
+  }
+}
 
+if($id != ""){
   $sql = "SELECT * FROM message WHERE groupId = '".$id."'";
   $result = mysqli_query($conn,$sql);
   if(mysqli_num_rows($result) >0){
@@ -280,7 +297,7 @@ if(isset($_GET["id"]) ){
         echo '
       
         <div class="d-flex justify-content-end container" style="border-radius: 20px;">
-        <li class="list-group-item d-flex justify-content-between align-items-start shadow-sm bg-secondary text-white" style="width: 70%;">
+        <li class="list-group-item d-flex justify-content-between align-items-start shadow-sm bg-dark text-white" style="width: 70%;">
             
             <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">'.$row["message"].'</strong>
@@ -300,7 +317,7 @@ if(isset($_GET["id"]) ){
       }else{
         echo '
           <div class="d-flex justify-content-start container" style="border-radius: 20px;">
-        <li class="list-group-item d-flex justify-content-between align-items-start text-white shadow-sm bg-dark" style="width: 70%; ">
+        <li class="list-group-item d-flex justify-content-between align-items-start text-white shadow-sm bg-secondary" style="width: 70%; ">
 
         <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">'.$row["message"].'</strong>
@@ -321,21 +338,37 @@ if(isset($_GET["id"]) ){
       }
     }
   }
+}
 
   echo'</ul>
       </div>';
   // echo '<script>
   //   alert("Working!");
   //   </script>';
-}
+
 ?>
 
 
 </div>
 
+<!-- FOOTER MESSAGE TYPER -->
+<div class="container-fluid fixed-bottom bg-dark">
+<form  method="post" >
+<div class="container-fluid card-footer text-muted d-flex justify-content-between align-items-center p-3">
+            <div class="input-group mb-0">
+              <input type="text" class="form-control" name="msg" placeholder="Type a message"
+                aria-label="Recipient's username" aria-describedby="button-addon2"/>
+              <input class="btn btn-success pl-5 pr-5" name="send" type="submit" value="Send" id="button-addon2" id="send" style="padding-top: .55rem;">
+            </div>
+          </div>
+          </form> 
 
+          </div>
 
 </div>
+
+
+
 
 
 
@@ -363,6 +396,20 @@ if(isset($_GET["id"]) ){
 </body>
 </html>
 <?php
+
+if(isset($_POST["send"])){
+  $msg = $_POST["msg"];
+  if($msg != ""){
+  $sql = "INSERT INTO message (groupId,userId,message) VALUES ('".$_SESSION["prevId"]."','".$_SESSION["id"]."','".$msg."')";
+  if(!mysqli_query($conn,$sql)){
+    echo "Error : ".$sql." ".mysqli_error($conn);
+    }else{
+      echo"<script>window.location.href='index.php';</script>";
+    }
+  }
+}
+
+
 if(isset($_POST["create"])){
   date_default_timezone_set("Asia/Calcutta");
   $gpName = $_POST["groupName"];
@@ -400,6 +447,7 @@ if(isset($_POST["create"])){
     
     mysqli_close($conn);
 }
+
 if(isset($_POST["join"])){
   $gpName = $_POST["groupName"];
   $gpPass = $_POST["groupPass"];
