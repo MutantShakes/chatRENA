@@ -302,9 +302,15 @@ if($id != ""){
             <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">'.$row["message"].'</strong>
         
-        </div>
-        <small class ="float-right"><i>Wed</i></small>
-        
+        </div>';
+        $sql2 = "SELECT * FROM user WHERE id = '".$row["userId"]."'";
+        $result2 = mysqli_query($conn,$sql2);
+        if(mysqli_num_rows($result) >0){
+          while($row2 = mysqli_fetch_assoc($result2)){
+        echo'
+        <small class ="float-right"><i>'.$row2["name"].'</i></small>';
+          }
+          echo'
           </li>
           </div>
         
@@ -313,7 +319,7 @@ if($id != ""){
          
 
         ';
-
+        }
       }else{
         echo '
           <div class="d-flex justify-content-start container" style="border-radius: 20px;">
@@ -322,10 +328,15 @@ if($id != ""){
         <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">'.$row["message"].'</strong>
         
-        </div>
-        <small class ="float-right"><i>Wed</i></small>
-            
-            
+        </div>';
+        $sql2 = "SELECT * FROM user WHERE id = '".$row["userId"]."'";
+        $result2 = mysqli_query($conn,$sql2);
+        if(mysqli_num_rows($result) >0){
+          while($row2 = mysqli_fetch_assoc($result2)){
+        echo'
+        <small class ="float-right"><i>'.$row2["name"].'</i></small>';
+          }
+          echo'
           </li>
           </div>
         
@@ -334,7 +345,7 @@ if($id != ""){
 
         ';
 
-
+        }
       }
     }
   }
