@@ -23,6 +23,8 @@ if(isset($_SESSION["id"])){
     <!-- Jquery -->
     <script src="https://code.jquery.com/jquery-3.6.1.min.js"></script>
 
+  
+
 
     <!-- Styling -->
     <style>
@@ -219,7 +221,8 @@ Join Group
       $result2=mysqli_query($conn,$sql2);
       if(mysqli_num_rows($result2) > 0){
         while($row2 = mysqli_fetch_assoc($result2)){
-          echo '<a href="?id='.$row2["id"].'" class="list-group-item list-group-item-action py-3 lh-sm"  aria-current="true">
+          echo '<input type="hidden" id="groupId" name="userId" value="'.$row2["id"].'">
+          <a href="#" id="load"  class="list-group-item list-group-item-action py-3 lh-sm"  aria-current="true">
       <div class="d-flex w-100 align-items-center justify-content-between">
         <strong class="mb-1">'.$row2["name"].'</strong>
         <small><i>'.$row2["mtime"].'</i></small>
@@ -261,113 +264,23 @@ Join Group
     
 
   
-<div class="container">
+<div class="container" id="msgFrame">
 
 
 
 <!-- Chatting frame -->
-<?php
-$id="";
-echo'  <div class="container overflow-auto" style="margin-top: 10px;">
-<ul class="list-group">';
-if(isset($_GET["id"])){
-  $id = $_GET["id"];
-  $_SESSION["prevId"] = $id;
-}
-else if(isset($_SESSION["prevId"])){
-  $id = $_SESSION["prevId"];
-}else{
-  $sql = "SELECT * FROM message WHERE userId = '".$_SESSION["id"]."'";
-  $result = mysqli_query($conn,$sql);
-  if(mysqli_num_rows($result) >0){
-    while($row = mysqli_fetch_assoc($result)){
-      $id = $row["groupId"];
-      $_SESSION["prevId"] = $id;
-      break;
-    }
-  }
-}
 
-if($id != ""){
-  $sql = "SELECT * FROM message WHERE groupId = '".$id."'";
-  $result = mysqli_query($conn,$sql);
-  if(mysqli_num_rows($result) >0){
-    while($row = mysqli_fetch_assoc($result)){
-      if($row["userId"] == $_SESSION["id"]){
-        echo '
-      
-        <div class="d-flex justify-content-end container" style="border-radius: 20px;">
-        <li class="list-group-item d-flex justify-content-between align-items-start shadow-sm bg-dark text-white" style="width: 70%;">
-            
-            <div class="d-flex w-100 align-items-center justify-content-between">
-        <strong class="mb-1">'.$row["message"].'</strong>
-        
-        </div>';
-        $sql2 = "SELECT * FROM user WHERE id = '".$row["userId"]."'";
-        $result2 = mysqli_query($conn,$sql2);
-        if(mysqli_num_rows($result) >0){
-          while($row2 = mysqli_fetch_assoc($result2)){
-        echo'
-        <small class ="float-right"><i>'.$row2["name"].'</i></small>';
-          }
-          echo'
-          </li>
-          </div>
-        
-          <br>
-
-         
-
-        ';
-        }
-      }else{
-        echo '
-          <div class="d-flex justify-content-start container" style="border-radius: 20px;">
-        <li class="list-group-item d-flex justify-content-between align-items-start text-white shadow-sm bg-secondary" style="width: 70%; ">
-
-        <div class="d-flex w-100 align-items-center justify-content-between">
-        <strong class="mb-1">'.$row["message"].'</strong>
-        
-        </div>';
-        $sql2 = "SELECT * FROM user WHERE id = '".$row["userId"]."'";
-        $result2 = mysqli_query($conn,$sql2);
-        if(mysqli_num_rows($result) >0){
-          while($row2 = mysqli_fetch_assoc($result2)){
-        echo'
-        <small class ="float-right"><i>'.$row2["name"].'</i></small>';
-          }
-          echo'
-          </li>
-          </div>
-        
-          <br>
-      
-
-        ';
-
-        }
-      }
-    }
-  }
-}
-
-  echo'</ul>
-      </div>';
-  // echo '<script>
-  //   alert("Working!");
-  //   </script>';
-
-?>
 
 
 </div>
 
+
 <!-- FOOTER MESSAGE TYPER -->
-<div class="container-fluid fixed-bottom bg-dark">
-<form  method="post" >
+<div class="container-fluid  bg-dark">
+<form  method="post" id="msgInbox" >
 <div class="container-fluid card-footer text-muted d-flex justify-content-between align-items-center p-3">
             <div class="input-group mb-0">
-              <input type="text" class="form-control" name="msg" placeholder="Type a message"
+              <input type="text" class="form-control" id="msg" placeholder="Type a message"
                 aria-label="Recipient's username" aria-describedby="button-addon2"/>
               <input class="btn btn-success pl-5 pr-5" name="send" type="submit" value="Send" id="button-addon2" id="send" style="padding-top: .55rem;">
             </div>
@@ -376,7 +289,7 @@ if($id != ""){
 
           </div>
 
-</div>
+          </div>
 
 
 
@@ -391,13 +304,9 @@ if($id != ""){
 
 
 <!-- javascript link file -->
-<script src="sidebars.js"></script>
-
-<!-- Javascript -->
-<script>
+<script src="index.js"></script>
 
 
-</script>
 
 
 
@@ -408,17 +317,17 @@ if($id != ""){
 </html>
 <?php
 
-if(isset($_POST["send"])){
-  $msg = $_POST["msg"];
-  if($msg != ""){
-  $sql = "INSERT INTO message (groupId,userId,message) VALUES ('".$_SESSION["prevId"]."','".$_SESSION["id"]."','".$msg."')";
-  if(!mysqli_query($conn,$sql)){
-    echo "Error : ".$sql." ".mysqli_error($conn);
-    }else{
-      echo"<script>window.location.href='index.php';</script>";
-    }
-  }
-}
+// if(isset($_POST["send"])){
+//   $msg = $_POST["msg"];
+//   if($msg != ""){
+//   $sql = "INSERT INTO message (groupId,userId,message) VALUES ('".$_SESSION["prevId"]."','".$_SESSION["id"]."','".$msg."')";
+//   if(!mysqli_query($conn,$sql)){
+//     echo "Error : ".$sql." ".mysqli_error($conn);
+//     }else{
+//       echo"<script>window.location.href='index.php';</script>";
+//     }
+//   }
+// }
 
 
 if(isset($_POST["create"])){
